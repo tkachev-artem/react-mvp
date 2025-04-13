@@ -9,34 +9,44 @@ interface login {
 
 export const useAuth = () => {
     const [token, setToken] = useState<string | null>(null);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
-        const savedToken = localStorage.getItem('auth_token');
-        if (savedToken) setToken(savedToken);
-      }, []);
+        const initAuth = async () => {
+            try {
+                const savedToken = localStorage.getItem('auth_token');
+                if (savedToken) setToken(savedToken);
+            } catch (error) {
+                console.error('Ошибка при инициализации авторизации:', error);
+            } finally {
+                setIsInitialized(true);
+            }
+        };
+        
+        initAuth();
+    }, []);
 
-      const loginMutation = useMutation({
+    const loginMutation = useMutation({
         mutationFn: (credentials: login) => authApi.login(credentials),
         onSuccess: (data) => {
-          // Предполагаем, что API возвращает токен в поле token
-          const newToken = data.token;
-          setToken(newToken);
-          localStorage.setItem('auth_token', newToken);
+            const newToken = data.token;
+            setToken(newToken);
+            localStorage.setItem('auth_token', newToken);
         },
-      });
+    });
 
-      const logout = () => {
+    const logout = () => {
         setToken(null);
         localStorage.removeItem('auth_token');
-      };
+    };
 
-      return { //почему?
+    return {
         isLoggedIn: !!token,
         token,
         login: loginMutation.mutate,
         logout,
-        isLoading: loginMutation.isPending,
+        isLoading: !isInitialized || loginMutation.isPending,
         error: loginMutation.error,
         isError: loginMutation.isError,
-      };
+    };
 }

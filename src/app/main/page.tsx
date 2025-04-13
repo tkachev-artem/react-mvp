@@ -16,8 +16,11 @@ import { RouteBlock } from "@/components/ablock";
 import { EventBlock } from "@/components/ablock";
 import { TaskBlock } from "@/components/ablock";
 
+import Protect from "@/components/protect";
+
 export default function Main() {
   return (
+    <Protect> {/* Защита от неавторизованных пользователей */}
       <div className="flex flex-col justify-center gap-5">
         <Section vertical={MainConfig.section.vertical} horizontal={MainConfig.section.horizontal}> {/* Кошелек */}
           <WalletName titleName={MainConfig.walletName.titleName} buttontransferName={MainConfig.walletName.buttontransferName} buttontransferIcon={MainConfig.walletName.buttontransferIcon} link={MainConfig.walletName.link} />
@@ -64,6 +67,7 @@ export default function Main() {
             <TaskBlock />
           </Section>
         </Section>
-    </div>
+      </div>
+    </Protect>
   );
 } 
