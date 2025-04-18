@@ -4,6 +4,8 @@ import routes from "@/hooks/routedata";
 import events from "@/hooks/eventdata";
 import tasks from "@/hooks/taskdata";
 
+import RouteModal from "@/components/ablock-modal";
+
 import Image from "next/image";
 
 import { useState } from "react";
@@ -34,10 +36,21 @@ interface taskProps {
 }
 
 const RouteContainer = ({ title, time, image }: routeProps) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleModalOpen = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    };
+
     return (
-        <div className="flex flex-col w-full">
-            <div className="flex h-10 flex-col justify-center items-center self-stretch bg-white p-2 rounded-xl border-2 border-solid border-black">
-                <p className="text-black text-sm font-semibold">{title}</p>
+        <>
+            <div className="flex flex-col w-full" onClick={handleModalOpen} role="button">
+                <div className="flex h-10 flex-col justify-center items-center self-stretch bg-white p-2 rounded-xl border-2 border-solid border-black">
+                    <p className="text-black text-sm font-semibold">{title}</p>
             </div>
 
             <div className="w-full h-full aspect-[171/92] rounded-xl relative">
@@ -49,6 +62,10 @@ const RouteContainer = ({ title, time, image }: routeProps) => {
                 <p className="text-black text-sm font-semibold">{time}</p>
             </div>
         </div>
+
+        <RouteModal isOpen={isModalOpen} onClose={handleModalClose} route={{ title, time, description: "", image, link: "" }} />
+
+        </>
     );
 }
 

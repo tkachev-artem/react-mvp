@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const staticpages = pathname === "/auth" || pathname === "/signup";
+  const staticpages = pathname === "/auth" || pathname === "/signup" || pathname === "/start";
 
   return (
     <html lang="ru">

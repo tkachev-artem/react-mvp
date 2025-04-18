@@ -13,7 +13,7 @@ const inputStyle = "flex w-full h-14 items-start bg-white rounded-full border-2 
 
 const Form = ({variant}: FormProps) => {
     const router = useRouter();
-    const { login, isLoading, error, isError } = useAuth();
+    const { login, registerStep1, registerStep2, isLoading, error, isError } = useAuth();
 
     const [step, setStep] = useState(1);
     
@@ -21,21 +21,42 @@ const Form = ({variant}: FormProps) => {
     const [name, setName] = useState("");
     const [lastname, setLastname] = useState("");
     const [password, setPassword] = useState("");
+    const [verificationCode, setVerificationCode] = useState(""); // Для кода подтверждения
 
     // Переход на следующий шаг
-    const nextStep = (e: React.FormEvent) => {
+    const nextStep = async (e: React.FormEvent) => {
         e.preventDefault();
-        setStep(2);
+        
+        if (variant === "register") {
+            if (step === 1) {
+                // Переходим ко второму шагу (имя и фамилия)
+                setStep(2);
+            } else if (step === 2) {
+                // Отправляем данные для первого шага регистрации
+                registerStep1(
+                    { 
+                        email, 
+                        firstName: name, 
+                        lastName: lastname 
+                    },
+                    {
+                        onSuccess: () => {
+                            setStep(3); // Переходим к третьему шагу (пин-код)
+                        }
+                    }
+                );
+            }
+        } else {
+            setStep(step + 1);
+        }
     };
 
     const prevStep = () => {
-        setStep(1);
+        setStep(step - 1);
     };
 
     const submitForm = (e: React.FormEvent) => {
         e.preventDefault();
-        //console.log("Отправка данных:", { email, name, lastname, password });
-        //alert("Форма отправлена!");
 
         if (variant === "auth") {
             login(
@@ -46,9 +67,21 @@ const Form = ({variant}: FormProps) => {
                     }
                 }
             );
-        } else {
-            console.log("Отправка данных:", { email, name, lastname, password });
-            alert("Форма отправлена!");
+        } else if (variant === "register" && step === 3) {
+            // Отправляем данные для второго шага регистрации
+            registerStep2(
+                { 
+                    email,
+                    firstName: name,
+                    lastName: lastname,
+                    verificationCode 
+                },
+                {
+                    onSuccess: () => {
+                        router.push("/main"); // перенаправление после регистрации
+                    }
+                }
+            );
         }
     };
 
@@ -103,91 +136,143 @@ const Form = ({variant}: FormProps) => {
     }
 
     if (variant === "register" && step === 1) {
-
+        // Валидация для первого шага - только email
         const datavalid = email.includes("@") && email.includes(".") && email.trim().length > 0;
 
         return (
-
             <div className="flex flex-col w-full gap-8">
-
                 <div className="flex justify-start items-center gap-2.5 self-stretch">
-                    <h1 className="text-black text-2xl text-start font-semibold">Введите свою почту, <br /> она понадобиться дальше</h1>
+                    <h1 className="text-black text-2xl text-start font-semibold">Введите свою почту, <br /> она понадобится дальше</h1>
                 </div>
                 
                 <form className="flex flex-col w-full gap-5" onSubmit={nextStep}>
+                    <input 
+                        className={inputStyle}
+                        type="email" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Почта" 
+                    />
                     
-                    
-                <input 
-                    className={inputStyle}
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Почта" 
-                />
+                    {isError && (
+                        <div className="text-red-500 text-sm">
+                            {error?.message || "Ошибка при отправке данных. Проверьте введенную информацию."}
+                        </div>
+                    )}
                 
-                <button 
-                    className={`flex w-full h-14 justify-center items-center bg-blue-200 rounded-full text-black text-base font-semibold ${datavalid ? "opacity-100" : "opacity-50"}`}
-                    type="submit"
-                    disabled={!datavalid}
-                >
-                    Далее
-                </button>
+                    <button 
+                        className={`flex w-full h-14 justify-center items-center bg-emerald-200 rounded-full text-black text-base font-semibold ${datavalid ? "opacity-100" : "opacity-50"}`}
+                        type="submit"
+                        disabled={!datavalid || isLoading}
+                    >
+                        {isLoading ? "Загрузка..." : "Далее"}
+                    </button>
 
-                <div className="flex justify-center items-center">
-                    <Link href="/auth" className="flex justify-center items-center text-neutral-500 text-base font-semibold">Уже есть аккаунт?</Link>
-                </div>
+                    <div className="flex justify-center items-center">
+                        <Link href="/auth" className="flex justify-center items-center text-neutral-500 text-base font-semibold">Уже есть аккаунт?</Link>
+                    </div>
                 </form>
             </div>
         );
     }
     
     if (variant === "register" && step === 2) {
-
+        // Валидация для второго шага - имя и фамилия
         const datavalid = name.trim().length > 0 && lastname.trim().length > 0;
 
         return (
-
             <div className="flex flex-col w-full gap-8">
-
                 <div className="flex justify-start items-center self-stretch">
                     <h1 className="text-black text-start text-2xl font-semibold">Введите свое имя <br /> и фамилию</h1>
                 </div>
 
-                <form className="flex flex-col w-full gap-5" onSubmit={submitForm}>
+                <form className="flex flex-col w-full gap-5" onSubmit={nextStep}>
+                    <input 
+                        className={inputStyle}
+                        type="text" 
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Имя" 
+                    />
                     
-                <input 
-                    className={inputStyle}
-                    type="name" 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Имя" 
-                />
-                
-                <input 
-                    className={inputStyle}
-                    type="lastname" 
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)}
-                    placeholder="Фамилия" 
-                />
-                
-                <div className="flex flex-col gap-5 justify-center items-center">
-                    <button 
-                        className={`flex w-full h-14 justify-center items-center bg-blue-200 rounded-full text-black text-base font-semibold ${datavalid ? "opacity-100" : "opacity-50"}`}
-                        type="submit"
-                        disabled={!datavalid}
-                    >
-                        Готово
-                    </button>
+                    <input 
+                        className={inputStyle}
+                        type="text" 
+                        value={lastname}
+                        onChange={(e) => setLastname(e.target.value)}
+                        placeholder="Фамилия" 
+                    />
+                    
+                    {isError && (
+                        <div className="text-red-500 text-sm">
+                            {error?.message || "Ошибка при отправке данных. Проверьте введенную информацию."}
+                        </div>
+                    )}
 
-                    <button 
-                        className="flex justify-center items-center text-neutral-500 text-base font-semibold"
-                        type="button"
-                        onClick={prevStep}
-                    >
-                        Вернуться на предыдущий шаг
-                    </button>
+                    <div className="flex flex-col gap-5 justify-center items-center">
+                        <button 
+                            className={`flex w-full h-14 justify-center items-center bg-emerald-200 rounded-full text-black text-base font-semibold ${datavalid ? "opacity-100" : "opacity-50"}`}
+                            type="submit"
+                            disabled={!datavalid || isLoading}
+                        >
+                            {isLoading ? "Отправка..." : "Далее"}
+                        </button>
+
+                        <button 
+                            className="flex justify-center items-center text-neutral-500 text-base font-semibold"
+                            type="button"
+                            onClick={prevStep}
+                        >
+                            Вернуться на предыдущий шаг
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
+    }
+
+    if (variant === "register" && step === 3) {
+        // Валидация для третьего шага - код подтверждения
+        const datavalid = verificationCode.trim().length > 0;
+
+        return (
+            <div className="flex flex-col w-full gap-8">
+                <div className="flex justify-start items-center self-stretch">
+                    <h1 className="text-black text-start text-2xl font-semibold">Введите код <br /> из письма на почте</h1>
                 </div>
+
+                <form className="flex flex-col w-full gap-5" onSubmit={submitForm}>
+                    <input 
+                        className={inputStyle}
+                        type="text" 
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        placeholder="Код подтверждения" 
+                    />
+                    
+                    {isError && (
+                        <div className="text-red-500 text-sm">
+                            {error?.message || "Неверный код подтверждения. Попробуйте еще раз."}
+                        </div>
+                    )}
+
+                    <div className="flex flex-col gap-5 justify-center items-center">
+                        <button 
+                            className={`flex w-full h-14 justify-center items-center bg-emerald-200 rounded-full text-black text-base font-semibold ${datavalid ? "opacity-100" : "opacity-50"}`}
+                            type="submit"
+                            disabled={!datavalid || isLoading}
+                        >
+                            {isLoading ? "Проверка..." : "Подтвердить"}
+                        </button>
+
+                        <button 
+                            className="flex justify-center items-center text-neutral-500 text-base font-semibold"
+                            type="button"
+                            onClick={prevStep}
+                        >
+                            Вернуться на предыдущий шаг
+                        </button>
+                    </div>
                 </form>
             </div>
         );
