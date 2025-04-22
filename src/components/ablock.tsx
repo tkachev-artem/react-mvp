@@ -16,6 +16,10 @@ interface routeProps {
     time: string;
     image: string;
     description: string;
+    coordinates: {
+        start: [number, number];
+        end: [number, number];
+    };
 }
 
 interface eventProps {
@@ -36,7 +40,7 @@ interface taskProps {
     image: string;
 }
 
-const RouteContainer = ({ title, time, image, description }: routeProps) => {
+const RouteContainer = ({ title, time, image, description, coordinates }: routeProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleModalOpen = () => {
@@ -64,7 +68,7 @@ const RouteContainer = ({ title, time, image, description }: routeProps) => {
             </div>
         </div>
 
-        <ModalRoute isOpen={isModalOpen} onClose={handleModalClose} route={{ title, time, description, image, link: "" }} />
+        <ModalRoute isOpen={isModalOpen} onClose={handleModalClose} route={{ title, time, description, image, link: "", coordinates }} />
 
         </>
     );
@@ -166,7 +170,7 @@ const RouteBlock = () => { //проверка на наличие в бд мар
     return (
         <>
             {routes.map((route: routeProps) => (
-                <RouteContainer key={route.id} id={route.id} title={route.title} time={route.time} image={route.image} description={route.description} />
+                <RouteContainer key={route.id} id={route.id} title={route.title} time={route.time} image={route.image} description={route.description} coordinates={route.coordinates} />
             ))}
         </>
     );

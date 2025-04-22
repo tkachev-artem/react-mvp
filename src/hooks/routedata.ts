@@ -4,16 +4,24 @@ const routes = [
     {
         id: 1,
         title: "Левый берег Дона",
-        time: "1 ч 15 мин",
+        time: "40 минут",
         image: "/images/route1.jpg",
-        description: "Описание маршрута 1"
+        description: "Прогуляйтесь по парку, который точно сделает вас красным. И стадион который без деревьев))",
+        coordinates: {
+            start: [47.212655, 39.731018] as [number, number],
+            end: [47.209436, 39.737818] as [number, number]
+        }
     },
     {
         id: 2,
         title: "Правый берег Дона",
-        time: "1 ч 10 мин",
+        time: "45 минут",
         image: "/images/route2.jpg",
-        description: "Описание маршрута 2"
+        description: "Эта сторона Дона богата на историю, тут расположена набережная, Речной вокзал, и Парамоновские склады, а ещё тут есть фонтан!",
+        coordinates: {
+            start: [47.213300, 39.711024] as [number, number],
+            end: [47.219725, 39.733891] as [number, number]
+        }
     }
 ]
 
