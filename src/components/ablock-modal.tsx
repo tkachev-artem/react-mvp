@@ -1,8 +1,11 @@
 import Image from "next/image";
 
-interface RouteModalProps {
+interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
+}
+
+interface ModalRouteProps {
     route: {
         title: string;
         time: string;
@@ -12,7 +15,28 @@ interface RouteModalProps {
     }
 }
 
-const RouteModal = ({ isOpen, onClose, route }: RouteModalProps) => {
+interface ModalEventProps {
+    event: {
+        type: string;
+        title: string;
+        datestart: string;
+        dateend: string;
+        image: string;
+    }
+}
+
+interface ModalTaskProps {
+    task: {
+        title: string;
+        icon: string;
+        taskpointstart: string;
+        taskpointend: string;
+        image: string;
+    }
+}
+
+
+const ModalRoute = ({ isOpen, onClose, route }: ModalProps & ModalRouteProps) => {
     if (!isOpen) return null;
 
     return (
@@ -23,7 +47,7 @@ const RouteModal = ({ isOpen, onClose, route }: RouteModalProps) => {
                         <Image src="/icons/appnavigation/left-arrow.svg" alt="left-arrow" width={10} height={10} />
                     </div>
 
-                    <h1 className="w-[calc(100%-40px)] text-black text-4xl font-bold">{route.title}</h1>
+                    <h1 className="w-[calc(100%-60px)] text-black text-4xl font-bold">{route.title}</h1>
 
                     <div className="relative w-full h-48">
                         <Image src={route.image} alt={route.title} fill className="object-cover rounded-xl" />
@@ -40,7 +64,7 @@ const RouteModal = ({ isOpen, onClose, route }: RouteModalProps) => {
 
                     <div className="flex flex-col gap-2"> {/* описание */}
                         <p className="text-black text-base font-bold">Описание</p>
-                        <p className="w-full h-full text-black text-base font-normal leading-[120%]">я оса, меня ебали 3 скворца, вдруг скворец присел на конец, а стрелец пасет овец, нет скворца, сидит овца, в жопу ей летит оса, а скворец наконец, понял что он не самец, таки выебла оса в жопу бедного овца, не смотря на бедного стрельца, который остался без хуйца, ведь овцу ебла оса, а стрелец ебал овца, вот такая вот конца, 3 скворца ебли оса, а могли ебать овца</p>
+                        <p className="w-full h-full text-black text-base font-normal leading-[120%]">{route.description}</p>
                     </div>
 
                     <div className="fixed bottom-5 left-1/2 -translate-x-1/2">
@@ -52,15 +76,52 @@ const RouteModal = ({ isOpen, onClose, route }: RouteModalProps) => {
                             </div>
                         </div>
                     </div>
-
-                    <div className="flex flex-col gap-2"> {/* описание */}
-                        <p className="text-black text-base font-bold">Описание</p>
-                        <p className="w-full h-full text-black text-base font-normal leading-[120%]">я оса, меня ебали 3 скворца, вдруг скворец присел на конец, а стрелец пасет овец, нет скворца, сидит овца, в жопу ей летит оса, а скворец наконец, понял что он не самец, таки выебла оса в жопу бедного овца, не смотря на бедного стрельца, который остался без хуйца, ведь овцу ебла оса, а стрелец ебал овца, вот такая вот конца, 3 скворца ебли оса, а могли ебать овца</p>
-                    </div>
                 </div>
             </div>
         </div>
     );
 }
 
-export default RouteModal;
+const ModalEvent = ({ isOpen, onClose, event }: ModalProps & ModalEventProps) => {
+    if (!isOpen) return null;
+
+    return (
+        <div>
+            <div className="fixed inset-0 z-50 bg-white overflow-hidden">
+                <div className="absolute inset-0 overflow-y-auto pb-24">
+                <div className="w-8 h-8 flex items-center justify-center bg-black rounded-full" role="button" onClick={onClose}> {/* кнопка назад */}
+                        <Image src="/icons/appnavigation/left-arrow.svg" alt="left-arrow" width={10} height={10} />
+                </div>
+                    <p>{event.title}</p>
+                    <p>{event.datestart}</p>
+                    <p>{event.dateend}</p>
+                    <p>{event.image}</p>
+                    <p>{event.type}</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+const ModalTask = ({ isOpen, onClose, task }: ModalProps & ModalTaskProps) => {
+    if (!isOpen) return null;
+
+    return (
+        <div>
+            <div className="fixed inset-0 z-50 bg-white overflow-hidden">
+                <div className="absolute inset-0 overflow-y-auto pb-24">
+                <div className="w-8 h-8 flex items-center justify-center bg-black rounded-full" role="button" onClick={onClose}> {/* кнопка назад */}
+                        <Image src="/icons/appnavigation/left-arrow.svg" alt="left-arrow" width={10} height={10} />
+                </div>
+                    <p>{task.title}</p>
+                    <p>{task.icon}</p>
+                    <p>{task.taskpointstart}</p>
+                    <p>{task.taskpointend}</p>
+                    <p>{task.image}</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export { ModalRoute, ModalEvent, ModalTask };

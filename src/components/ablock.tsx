@@ -4,17 +4,18 @@ import routes from "@/hooks/routedata";
 import events from "@/hooks/eventdata";
 import tasks from "@/hooks/taskdata";
 
-import RouteModal from "@/components/ablock-modal";
-
 import Image from "next/image";
 
 import { useState } from "react";
+
+import { ModalRoute, ModalEvent, ModalTask } from "@/components/ablock-modal";
 
 interface routeProps {
     id: number;
     title: string;
     time: string;
     image: string;
+    description: string;
 }
 
 interface eventProps {
@@ -35,7 +36,7 @@ interface taskProps {
     image: string;
 }
 
-const RouteContainer = ({ title, time, image }: routeProps) => {
+const RouteContainer = ({ title, time, image, description }: routeProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleModalOpen = () => {
@@ -63,16 +64,27 @@ const RouteContainer = ({ title, time, image }: routeProps) => {
             </div>
         </div>
 
-        <RouteModal isOpen={isModalOpen} onClose={handleModalClose} route={{ title, time, description: "", image, link: "" }} />
+        <ModalRoute isOpen={isModalOpen} onClose={handleModalClose} route={{ title, time, description, image, link: "" }} />
 
         </>
     );
 }
 
 const EventContainer = ({ type, title, datestart, dateend, image }: eventProps) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleModalOpen = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    };
+
     return (
-        <div className="flex w-full flex-col justify-center items-center gap-4 bg-neutral-100 rounded-xl p-4 ">
-            <div className="flex flex-col justify-center items-center gap-2 self-stretch">
+        <> 
+            <div className="flex w-full flex-col justify-center items-center gap-4 bg-neutral-100 rounded-xl p-4 " onClick={handleModalOpen} role="button">
+                <div className="flex flex-col justify-center items-center gap-2 self-stretch">
                 <div className="flex justify-center items-center gap-2 bg-white px-4 py-2 rounded-xl border-2 border-solid border-black">
                     <p className="text-black text-xs font-semibold">{type}</p>
                 </div>
@@ -90,14 +102,29 @@ const EventContainer = ({ type, title, datestart, dateend, image }: eventProps) 
                     <div className="flex w-3 h-px flex-col justify-center items-center bg-black"></div>
                     <p className="text-black text-xs font-semibold">{dateend}</p>
                 </div>
+                </div>
             </div>
-        </div>
+
+            <ModalEvent isOpen={isModalOpen} onClose={handleModalClose} event={{ type, title, datestart, dateend, image }} />
+
+        </>
     );
 }
 
 const TaskContainer = ({ title, icon, taskpointstart, taskpointend, image }: taskProps) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleModalOpen = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    };
+
     return (
-        <div className="flex w-full flex-col">
+        <>
+        <div className="flex w-full flex-col" onClick={handleModalOpen} role="button">
            <div className="flex h-10 flex-col justify-center items-center self-stretch bg-white p-2 rounded-xl border-2 border-solid border-black">
                 <h1 className="text-black text-sm font-semibold">{title}</h1>
            </div>
@@ -118,6 +145,10 @@ const TaskContainer = ({ title, icon, taskpointstart, taskpointend, image }: tas
                 </div>
            </div>
         </div>
+
+        <ModalTask isOpen={isModalOpen} onClose={handleModalClose} task={{ title, icon, taskpointstart, taskpointend, image }} />
+
+        </>
     );
 }
 
@@ -135,7 +166,7 @@ const RouteBlock = () => { //проверка на наличие в бд мар
     return (
         <>
             {routes.map((route: routeProps) => (
-                <RouteContainer key={route.id} id={route.id} title={route.title} time={route.time} image={route.image} />
+                <RouteContainer key={route.id} id={route.id} title={route.title} time={route.time} image={route.image} description={route.description} />
             ))}
         </>
     );
