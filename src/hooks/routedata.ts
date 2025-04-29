@@ -22,6 +22,17 @@ const routes = [
             start: [47.213300, 39.711024] as [number, number],
             end: [47.219725, 39.733891] as [number, number]
         }
+    },
+    {
+        id: 3,
+        title: "Дом Алины",
+        time: "5 минут",
+        image: "/images/route2.jpg",
+        description: "Этот дом находится в центре города, и является памятником архитектуры. Его построили в 1930-х годах, и он является одним из самых красивых зданий в городе.",
+        coordinates: {
+            start: [47.271626, 39.747864] as [number, number],
+            end: [47.271626, 39.747864] as [number, number]
+        }
     }
 ]
 
