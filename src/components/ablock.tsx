@@ -29,6 +29,13 @@ interface eventProps {
     datestart: string;
     dateend: string;
     image: string;
+    timestart: string;
+    timeend: string;
+    taketime: string;
+    reward: string;
+    price: string;
+    description: string;
+    coordinates: number[];
 }
 
 interface taskProps {
@@ -74,7 +81,7 @@ const RouteContainer = ({ title, time, image, description, coordinates }: routeP
     );
 }
 
-const EventContainer = ({ type, title, datestart, dateend, image }: eventProps) => {
+const EventContainer = ({ type, title, datestart, dateend, image, timestart, timeend, taketime, reward, price, description, coordinates }: eventProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleModalOpen = () => {
@@ -85,6 +92,8 @@ const EventContainer = ({ type, title, datestart, dateend, image }: eventProps) 
         setIsModalOpen(false);
     };
 
+    const hasDate = datestart || dateend;
+
     return (
         <> 
             <div className="flex w-full flex-col justify-center items-center gap-4 bg-neutral-100 rounded-xl p-4 " onClick={handleModalOpen} role="button">
@@ -93,23 +102,29 @@ const EventContainer = ({ type, title, datestart, dateend, image }: eventProps) 
                     <p className="text-black text-xs font-semibold">{type}</p>
                 </div>
 
-                <h1 className="text-black text-2xl font-semibold">{title}</h1>
+                <h1 className="text-black text-2xl font-semibold text-center">{title}</h1>
             </div>
 
             <div className="flex w-full h-full aspect-[321/173] rounded-xl relative">
                 <Image src={image} alt={title} fill className="object-cover rounded-xl" />
             </div>
 
-            <div className="flex justify-center items-center self-stretch">
-                <div className="flex justify-center items-center gap-2 bg-white px-4 py-2 rounded-xl border-2 border-solid border-black">
-                    <p className="text-black text-xs font-semibold">{datestart}</p>
-                    <div className="flex w-3 h-px flex-col justify-center items-center bg-black"></div>
-                    <p className="text-black text-xs font-semibold">{dateend}</p>
-                </div>
-                </div>
+                {hasDate && (
+                    <div className="flex justify-center items-center self-stretch">
+                        <div className="flex justify-center items-center gap-2 bg-white px-4 py-2 rounded-xl border-2 border-solid border-black">
+                            <p className="text-black text-xs font-semibold">{datestart}</p>
+                            {datestart && dateend && (
+                                <>
+                                    <div className="flex w-3 h-px flex-col justify-center items-center bg-black"></div>
+                                    <p className="text-black text-xs font-semibold">{dateend}</p>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
 
-            <ModalEvent isOpen={isModalOpen} onClose={handleModalClose} event={{ type, title, datestart, dateend, image }} />
+            <ModalEvent isOpen={isModalOpen} onClose={handleModalClose} event={{ type, title, datestart, dateend, image, timestart, timeend, taketime, reward, price, description, coordinates }} />
 
         </>
     );
@@ -192,7 +207,7 @@ const EventBlock = () => { //проверка на наличие в бд соб
     return (
         <> 
             {events.map((event: eventProps) => (
-                <EventContainer key={event.id} id={event.id} type={event.type} title={event.title} datestart={event.datestart} dateend={event.dateend} image={event.image} />
+                <EventContainer key={event.id} id={event.id} type={event.type} title={event.title} datestart={event.datestart} dateend={event.dateend} image={event.image} timestart={event.timestart} timeend={event.timeend} taketime={event.taketime} reward={event.reward} price={event.price} description={event.description} coordinates={event.coordinates} />
             ))}
         </>
     );

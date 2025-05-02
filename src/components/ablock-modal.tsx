@@ -29,6 +29,13 @@ interface ModalEventProps {
         datestart: string;
         dateend: string;
         image: string;
+        timestart: string;
+        timeend: string;
+        taketime: string;
+        reward: string;
+        price: string;
+        description: string;
+        coordinates?: number[];
     }
 }
 
@@ -186,19 +193,135 @@ const ModalEvent = ({ isOpen, onClose, event }: ModalProps & ModalEventProps) =>
 
     if (!isOpen) return null;
 
+    const hasDate = event.datestart || event.dateend;
+    const hasTime = event.timestart || event.timeend;
+    const hasPrice = event.price && event.price !== "0";
+    const hasReward = event.reward && event.reward !== "0";
+
     return (
-            <div className="fixed inset-0 z-50 bg-white overflow-hidden">
-                <div className="absolute inset-0 overflow-y-auto pb-24">
-                <div className="w-8 h-8 flex items-center justify-center bg-black rounded-full" role="button" onClick={onClose}> {/* кнопка назад */}
+        <div className="fixed inset-0 z-50 bg-white overflow-hidden">
+            <div className="absolute inset-0 overflow-y-auto pb-24">
+                <div className="flex flex-col gap-5 p-4">
+                    <div 
+                        className="w-8 h-8 flex items-center justify-center bg-black rounded-full" 
+                        role="button" 
+                        onClick={onClose}
+                        tabIndex={0}
+                        aria-label="Вернуться назад"
+                    >
                         <Image src="/icons/appnavigation/left-arrow.svg" alt="left-arrow" width={10} height={10} />
-                </div>
-                    <p>{event.title}</p>
-                    <p>{event.datestart}</p>
-                    <p>{event.dateend}</p>
-                    <p>{event.image}</p>
-                    <p>{event.type}</p>
+                    </div>
+
+                    <h1 className="text-black text-4xl font-bold">{event.title}</h1>
+
+                    <div className="relative w-full h-48">
+                        <Image src={event.image} alt={event.title} fill className="object-cover rounded-xl" />
+                    </div>
+
+                    <div className="inline-flex px-4 py-1 bg-white rounded-xl border-2 border-black self-center">
+                        <p className="text-black text-sm font-semibold">{event.type}</p>
+                    </div>
+
+                    {(hasDate || hasTime) && (
+                        <div className="flex flex-row justify-between items-center">
+                            {hasDate && (
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-black text-base font-normal">Дата:</p>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <p className="text-black text-lg font-bold">{event.datestart}</p>
+                                        {event.datestart && event.dateend && event.datestart !== event.dateend && (
+                                            <>
+                                                <div className="w-2 h-px bg-black"></div>
+                                                <p className="text-black text-lg font-bold">{event.dateend}</p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {hasTime && (
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-black text-base font-normal">Время:</p>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <p className="text-black text-lg font-bold">{event.timestart}</p>
+                                        {event.timestart && event.timeend && (
+                                            <>
+                                                <div className="w-2 h-px bg-black"></div>
+                                                <p className="text-black text-lg font-bold">{event.timeend}</p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Комбинированный блок для времени/стоимости/награды */}
+                    <div className="flex flex-row justify-between items-start">
+                        {/* Блок времени */}
+                        {event.taketime && (
+                            <div className="flex flex-col gap-1">
+                                <p className="text-black text-base font-normal">Это займет:</p>
+                                <div className="flex flex-row gap-2"> 
+                                    <Image src="/icons/a-block/clock.svg" alt="clock" width={24} height={24} />
+                                    <p className="text-black text-3xl font-bold">{event.taketime}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Блок стоимости - показываем только если есть цена */}
+                        {hasPrice && (
+                            <div className="flex flex-col gap-1">
+                                <p className="text-black text-base font-normal">Стоимость:</p>
+                                <div className="flex flex-row items-center gap-2">
+                                    <Image src="/icons/wallet/ruble-black.svg" alt="ruble" width={24} height={24} />
+                                    <p className="text-black text-3xl font-bold">{event.price}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Блок награды - показываем если есть награда */}
+                        {hasReward && (
+                            <div className="flex flex-col gap-1">
+                                <p className="text-black text-base font-normal">Награда:</p>
+                                <div className="flex flex-row items-center gap-2">
+                                    <Image src="/icons/wallet/bonus-black.svg" alt="bonus" width={18} height={18} />
+                                    <p className="text-black text-3xl font-bold">{event.reward}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <p className="text-black text-base font-bold">Описание</p>
+                        <p className="w-full h-full text-black text-base font-normal leading-[120%]">{event.description}</p>
+                    </div>
+
+                    {event.coordinates && event.coordinates.length >= 2 && (
+                        <div className="w-full h-[300px] rounded-xl overflow-hidden mt-6">
+                            <YandexMap 
+                                center={event.coordinates}
+                                marker={event.coordinates ? { coordinates: event.coordinates} : null}
+                            />
+                        </div>
+                    )}
+
+                    <div className="fixed bottom-5 left-1/2 -translate-x-1/2">
+                        <div 
+                            className="flex flex-row gap-2 w-64 h-18 bg-black text-white p-2 items-center justify-between rounded-full"
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Добавить в мои события"
+                        >
+                            <p className="flex pl-6 text-white text-xl font-bold">добавить</p>
+                            <div className="w-14 h-14 bg-white flex items-center justify-center rounded-full">
+                                <Image src="/icons/appnavigation/plus.svg" alt="plus" width={24} height={24} />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
     );
 }
 

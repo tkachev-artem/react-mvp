@@ -4,13 +4,19 @@ import { useEffect, useRef } from 'react';
 let isScriptLoading = false;
 let isScriptLoaded = false;
 
+type Coordinates = [number, number] | number[];
+
 interface YandexMapProps {
-  center: [number, number]; // [широта, долгота]
+  center: Coordinates | null; // [широта, долгота] или null если нет координат
   zoom?: number;
   route?: {
-    start: [number, number];
-    end: [number, number];
-  };
+    start: Coordinates;
+    end: Coordinates;
+  } | null;
+  marker?: {
+    coordinates: Coordinates;
+    title?: string;
+  } | null;
   interactive?: boolean;
 }
 
@@ -43,6 +49,15 @@ declare global {
           settings: { boundsAutoApply: boolean }
         ) => object;
       };
+      Placemark: new (
+        coordinates: [number, number],
+        properties?: {
+          iconCaption?: string;
+        },
+        options?: {
+          preset?: string;
+        }
+      ) => object;
     };
   }
 }
@@ -78,17 +93,31 @@ const loadYandexMapScript = (callback: () => void) => {
   document.body.appendChild(script);
 };
 
-const YandexMap = ({ center, zoom = 15, route, interactive = true }: YandexMapProps) => {
+// Функция для преобразования координат в формат [number, number]
+const ensureTupleCoordinates = (coords: Coordinates): [number, number] => {
+  if (Array.isArray(coords) && coords.length >= 2) {
+    return [coords[0], coords[1]];
+  }
+  // Если координаты некорректные, возвращаем дефолтные
+  return [0, 0];
+};
+
+const YandexMap = ({ center, zoom = 15, route, marker, interactive = true }: YandexMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
+    // Если нет координат, не инициализируем карту
+    if (!center) return;
+    
     // Инициализация карты после загрузки скрипта
     const initMap = () => {
       window.ymaps.ready(() => {
         if (!mapRef.current) return;
         
+        const centerCoords = ensureTupleCoordinates(center);
+        
         const map = new window.ymaps.Map(mapRef.current, {
-          center,
+          center: centerCoords,
           zoom,
           controls: interactive ? ['zoomControl', 'fullscreenControl'] : [],
         });
@@ -100,14 +129,30 @@ const YandexMap = ({ center, zoom = 15, route, interactive = true }: YandexMapPr
         
         // Если есть маршрут, добавляем его на карту
         if (route) {
+          const startCoords = ensureTupleCoordinates(route.start);
+          const endCoords = ensureTupleCoordinates(route.end);
+          
           const multiRoute = new window.ymaps.multiRouter.MultiRoute({
-            referencePoints: [route.start, route.end],
+            referencePoints: [startCoords, endCoords],
             params: { routingMode: 'pedestrian' }
           }, {
             boundsAutoApply: true
           });
           
           map.geoObjects.add(multiRoute);
+        }
+        
+        // Если есть маркер, добавляем его на карту
+        if (marker) {
+          const markerCoords = ensureTupleCoordinates(marker.coordinates);
+          
+          const placemark = new window.ymaps.Placemark(
+            markerCoords, 
+            { iconCaption: marker.title }, 
+            { preset: 'islands#redDotIconWithCaption' }
+          );
+          
+          map.geoObjects.add(placemark);
         }
       });
     };
@@ -116,7 +161,10 @@ const YandexMap = ({ center, zoom = 15, route, interactive = true }: YandexMapPr
     loadYandexMapScript(initMap);
     
     // Нет необходимости в удалении скрипта при размонтировании
-  }, [center, zoom, route, interactive]);
+  }, [center, zoom, route, marker, interactive]);
+  
+  // Если координаты центра не заданы, не отображаем карту
+  if (!center) return null;
   
   return <div ref={mapRef} className="w-full h-full rounded-xl" />;
 };
