@@ -45,6 +45,12 @@ interface taskProps {
     taskpointstart: string;
     taskpointend: string;
     image: string;
+    description: string;
+    taskdescription: string;
+    reward: string;
+    taskcitytype: string;
+    taskcityplaceinfo: string;
+    coordinates: number[];
 }
 
 const RouteContainer = ({ title, time, image, description, coordinates }: routeProps) => {
@@ -130,7 +136,7 @@ const EventContainer = ({ type, title, datestart, dateend, image, timestart, tim
     );
 }
 
-const TaskContainer = ({ title, icon, taskpointstart, taskpointend, image }: taskProps) => {
+const TaskContainer = ({ title, icon, taskpointstart, taskpointend, image, description, taskdescription, reward, taskcitytype, taskcityplaceinfo, coordinates }: taskProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleModalOpen = () => {
@@ -144,8 +150,8 @@ const TaskContainer = ({ title, icon, taskpointstart, taskpointend, image }: tas
     return (
         <>
         <div className="flex w-full flex-col" onClick={handleModalOpen} role="button">
-           <div className="flex h-10 flex-col justify-center items-center self-stretch bg-white p-2 rounded-xl border-2 border-solid border-black">
-                <h1 className="text-black text-sm font-semibold">{title}</h1>
+           <div className="flex h-fill flex-col justify-center items-center self-stretch bg-white p-2 rounded-xl border-2 border-solid border-black">
+                <h1 className="text-black text-sm font-semibold text-center">{title}</h1>
            </div>
 
            <div className="w-full h-full aspect-[171/92] rounded-xl relative">
@@ -165,7 +171,7 @@ const TaskContainer = ({ title, icon, taskpointstart, taskpointend, image }: tas
            </div>
         </div>
 
-        <ModalTask isOpen={isModalOpen} onClose={handleModalClose} task={{ title, icon, taskpointstart, taskpointend, image }} />
+        <ModalTask isOpen={isModalOpen} onClose={handleModalClose} task={{ title, icon, taskpointstart, taskpointend, image, description, taskdescription, reward, taskcitytype, taskcityplaceinfo, coordinates }} />
 
         </>
     );
@@ -229,7 +235,7 @@ const TaskBlock = () => { //проверка на наличие в бд зад�
     return (
         <>
             {tasks.map((task: taskProps) => (
-                <TaskContainer key={task.id} id={task.id} title={task.title} icon={task.icon} taskpointstart={task.taskpointstart} taskpointend={task.taskpointend} image={task.image} />
+                <TaskContainer key={task.id} id={task.id} title={task.title} icon={task.icon} taskpointstart={task.taskpointstart} taskpointend={task.taskpointend} image={task.image} description={task.description} taskdescription={task.taskdescription} reward={task.reward} taskcitytype={task.taskcitytype} taskcityplaceinfo={task.taskcityplaceinfo} coordinates={task.coordinates} />
             ))}
         </>
     );
