@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ChangePasswordData {
     oldPassword: string;
