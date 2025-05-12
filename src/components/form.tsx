@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface FormProps {
     variant: "auth" | "register";
@@ -13,6 +13,7 @@ const inputStyle = "flex w-full h-14 items-start bg-white rounded-full border-2 
 
 const Form = ({variant}: FormProps) => {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { login, registerStep1, registerStep2, isLoading, error, isError } = useAuth();
 
     const [step, setStep] = useState(1);
@@ -22,6 +23,19 @@ const Form = ({variant}: FormProps) => {
     const [lastname, setLastname] = useState("");
     const [password, setPassword] = useState("");
     const [verificationCode, setVerificationCode] = useState(""); // Для кода подтверждения
+
+    // Загружаем email из localStorage или URL параметров при монтировании компонента
+    useEffect(() => {
+        // Приоритет: 1) URL параметр email, 2) localStorage
+        const emailFromUrl = searchParams.get('email');
+        const savedEmail = localStorage.getItem('saved_email');
+        
+        if (emailFromUrl) {
+            setEmail(emailFromUrl);
+        } else if (savedEmail && variant === "auth") {
+            setEmail(savedEmail);
+        }
+    }, [searchParams, variant]);
 
     // Переход на следующий шаг
     const nextStep = async (e: React.FormEvent) => {
@@ -68,6 +82,9 @@ const Form = ({variant}: FormProps) => {
                 }
             );
         } else if (variant === "register" && step === 3) {
+            // Сохраняем email в localStorage перед отправкой формы регистрации
+            localStorage.setItem('saved_email', email);
+            
             // Отправляем данные для второго шага регистрации
             registerStep2(
                 { 
@@ -78,7 +95,7 @@ const Form = ({variant}: FormProps) => {
                 },
                 {
                     onSuccess: () => {
-                        router.push("/main"); // перенаправление после регистрации
+                        router.push("/auth"); // перенаправление после регистрации
                     }
                 }
             );
@@ -169,7 +186,12 @@ const Form = ({variant}: FormProps) => {
                     </button>
 
                     <div className="flex justify-center items-center">
-                        <Link href="/auth" className="flex justify-center items-center text-neutral-500 text-base font-semibold">Уже есть аккаунт?</Link>
+                        <Link 
+                            href={email.trim() ? `/auth?email=${encodeURIComponent(email)}` : "/auth"} 
+                            className="flex justify-center items-center text-neutral-500 text-base font-semibold"
+                        >
+                            Уже есть аккаунт?
+                        </Link>
                     </div>
                 </form>
             </div>

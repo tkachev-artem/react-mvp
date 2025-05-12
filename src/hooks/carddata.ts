@@ -1,71 +1,124 @@
-import { useQuery } from '@tanstack/react-query';
+"use client";
 
-// Интерфейс для данных карты
+import { useQuery } from "@tanstack/react-query";
+
+// Проверка, доступен ли localStorage (только в браузере)
+const isClient = typeof window !== 'undefined';
+
+// Безопасный доступ к localStorage
+const getAuthToken = (): string | null => {
+  if (!isClient) return null;
+  return localStorage.getItem("auth_token");
+};
+
+// Интерфейс для данных карты (взято из Swagger)
 export interface CardData {
-    cardNumber?: string;     // Номер карты
+  id?: number;
+  cardNumber?: string;
+  expiryDate?: string;
+  fullName?: string;
+  status?: string;
+  isActive?: boolean;
 }
 
-// Функция для форматирования номера карты (добавление пробелов после каждых 4 цифр)
+// Фейковые данные карты при ошибке/отключенном сервере
+export const defaultCardData: CardData = {
+  id: 1,
+  cardNumber: "1234 5678 9012 3425",
+  expiryDate: "12/26",
+  fullName: "Иван Иванов",
+  status: "Active",
+  isActive: true,
+};
+
+// Форматирование номера карты — добавляет пробелы после каждых 4 цифр
 export const formatCardNumber = (cardNumber: string): string => {
-    // Удаляем все нецифровые символы
-    const cleanedNumber = cardNumber.replace(/\D/g, '');
-    
-    // Добавляем пробелы после каждых 4 цифр
-    const formattedNumber = cleanedNumber.replace(/(\d{4})(?=\d)/g, '$1 ');
-    
-    return formattedNumber;
+  const cleaned = cardNumber.replace(/\D/g, "");
+  return cleaned.replace(/(\d{4})(?=\d)/g, "$1 ");
 };
 
-// Функция для получения данных карты через API
+// 📤 Запрос на создание виртуальной карты
+export const requestVirtualCard = async (): Promise<void> => {
+  const token = getAuthToken();
+  if (!token) throw new Error("Не авторизован");
+
+  const response = await fetch("/api/VCard/request", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    if (response.status === 401) throw new Error("Необходима авторизация");
+    if (response.status === 400) throw new Error(errorData.message || "Некорректный запрос");
+    if (response.status === 409) throw new Error("У вас уже есть виртуальная карта");
+    throw new Error(errorData.message || "Ошибка сервера");
+  }
+};
+
+// ✅ Подтверждение карты по PIN-коду
+export const confirmVirtualCard = async (pinCode: string): Promise<void> => {
+  const token = getAuthToken();
+  if (!token) throw new Error("Не авторизован");
+
+  const response = await fetch("/api/VCard/confirm", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "*/*",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(pinCode), // 👈 просто строка!
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    if (response.status === 401) throw new Error("Необходима авторизация");
+    if (response.status === 400) throw new Error("Неверный PIN-код");
+    throw new Error(errorData.message || "Ошибка подтверждения карты");
+  }
+};
+
+// 📥 Получение данных карты
 const fetchCardInfo = async (): Promise<CardData> => {
-    // Получаем токен из localStorage
-    const token = localStorage.getItem('auth_token');
-    
-    if (!token) {
-        throw new Error('Не авторизован');
-    }
-    
-    // Запрос к нашему API роуту
-    const response = await fetch('/api/VCard/info', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-    
-    if (!response.ok) {
-        throw new Error('Ошибка при получении данных карты');
-    }
-    
-    const data = await response.json();
-    
-    // Форматируем номер карты перед возвращением данных
-    if (data.cardNumber) {
-        data.cardNumber = formatCardNumber(data.cardNumber);
-    }
-    
-    return data;
+  const token = getAuthToken();
+  if (!token) throw new Error("Не авторизован");
+
+  const response = await fetch("/api/VCard/info", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) throw new Error("Не авторизован");
+    if (response.status === 404) return {}; // Нет карты — не ошибка
+    throw new Error("Ошибка при получении данных карты");
+  }
+
+  const data = await response.json();
+  if (data.cardNumber) {
+    data.cardNumber = formatCardNumber(data.cardNumber);
+  }
+
+  return data;
 };
 
-// Хук для получения данных карты с использованием TanStack Query
 export const useCardData = () => {
     return useQuery({
-        queryKey: ['cardInfo'],
-        queryFn: fetchCardInfo,
-        // Если нет карты, возвращаем объект с пустыми значениями
-        initialData: { cardNumber: '' },
-        // Отключаем автоматический запрос при монтировании, если нет токена
-        enabled: !!localStorage.getItem('auth_token'),
-        // Обновляем данные каждые 5 минут
-        refetchInterval: 5 * 60 * 1000,
-        // Не обновляем если вкладка не активна
-        refetchOnWindowFocus: true,
-        // Если ошибка, пытаемся еще 3 раза
-        retry: 3,
+      queryKey: ["cardInfo"],
+      queryFn: fetchCardInfo,
+      enabled: isClient && !!getAuthToken(),
+      refetchInterval: 5 * 60 * 1000,
+      refetchOnWindowFocus: true,
+      retry: false,
     });
-};
-
-// Фейковые данные карты для начального состояния или тестирования
-export const defaultCardData: CardData = {
-    cardNumber: "1234 5678 9012 3456"
-};
+  };
+  

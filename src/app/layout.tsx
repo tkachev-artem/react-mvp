@@ -23,7 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const staticpages = pathname === "/auth" || pathname === "/signup" || pathname === "/start";
+  const staticpages = pathname === "/auth" || pathname === "/signup" || pathname === "/start" || pathname === "/";
+  const isStartPage = pathname === "/";
 
   return (
     <html lang="ru">
@@ -32,7 +33,7 @@ export default function RootLayout({
       >
         <QueryClientProvider client={queryClient}>
           {staticpages ? (
-            <div className="flex flex-col h-[100dvh] overflow-hidden gap-5 p-5 justify-center">
+            <div className={`flex flex-col h-[100dvh] ${isStartPage ? 'bg-cyan-100' : ''} overflow-hidden gap-5 p-5 justify-center`}>
               {children}
             </div>
           ): (
@@ -41,6 +42,7 @@ export default function RootLayout({
               <NavMen />
             </div>
           )}
+
         </QueryClientProvider>
       </body>
     </html>

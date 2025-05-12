@@ -91,10 +91,9 @@ export const useAuth = () => {
             return response.json();
         },
         onSuccess: (data) => {
-            // Записываем токен если он есть в ответе
             if (data.token) {
-                setToken(data.token);
-                localStorage.setItem('auth_token', data.token);
+                setToken(data.token); //сохраняем токена 
+                localStorage.setItem('auth_token', data.token); 
             }
         }
     });
