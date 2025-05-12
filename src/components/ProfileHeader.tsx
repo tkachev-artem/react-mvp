@@ -14,9 +14,11 @@ export default function ProfileHeader() {
                     onClick={() => router.back()}
                     className="w-[27px] h-[27px] flex items-center justify-center"
                 >
-                    <img
+                    <Image
                         src="/images/backToExit.png"
                         alt="Назад"
+                        width={27}
+                        height={27}
                         className="w-full h-full"
                     />
                 </button>
@@ -35,9 +37,11 @@ export default function ProfileHeader() {
                 onClick={() => router.push('/profile')}
                 className="w-[27px] h-[27px] flex items-center justify-center"
             >
-                <img
+                <Image
                     src="/images/edit-icon.png"
                     alt="Редактировать"
+                    width={27}
+                    height={27}
                     className="w-full h-full"
                 />
             </button>

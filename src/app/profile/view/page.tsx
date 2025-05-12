@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
+import Image from "next/image";
 
 export default function ProfileView() {
     const router = useRouter();
@@ -24,9 +25,11 @@ export default function ProfileView() {
                     onClick={() => logout()}
                     className="w-[27px] h-[27px] flex items-center justify-center"
                 >
-                    <img
+                    <Image
                         src="/images/backToExit.png"
                         alt="Выйти"
+                        width={27}
+                        height={27}
                         className="w-full h-full"
                     />
                 </button>
@@ -41,9 +44,11 @@ export default function ProfileView() {
                     onClick={() => router.push('/profile')}
                     className="ml-auto w-[27px] h-[27px] flex items-center justify-center"
                 >
-                    <img
+                    <Image
                         src="/images/edit-icon.png"
                         alt="Редактировать"
+                        width={27}
+                        height={27}
                         className="w-full h-full"
                     />
                 </button>
@@ -52,9 +57,11 @@ export default function ProfileView() {
             {/* Аватар */}
             <div className="flex justify-center mb-6 mt-[16px]">
                 <div className="w-[126px] h-[126px] rounded-full overflow-hidden">
-                    <img
+                    <Image
                         src="/images/avatar.jpg"
                         alt="Avatar"
+                        width={126}
+                        height={126}
                         className="w-full h-full object-cover"
                     />
                 </div>
