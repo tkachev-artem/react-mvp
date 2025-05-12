@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/UseAuth';
 
 interface UserData {
     name: string;
