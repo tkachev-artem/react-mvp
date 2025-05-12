@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    appDir: true,
+    // Добавьте здесь нужные экспериментальные функции
   },
   async redirects() {
     return [
