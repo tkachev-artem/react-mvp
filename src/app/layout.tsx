@@ -6,6 +6,7 @@ import NavMen from "@/components/nav";
 import "./globals.css";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query-client';
+import MobileOnly from "@/components/MobileOnly";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,17 +33,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <QueryClientProvider client={queryClient}>
-          {staticpages ? (
-            <div className={`flex flex-col h-[100dvh] ${isStartPage ? 'bg-cyan-100' : ''} overflow-hidden gap-5 p-5 justify-center`}>
-              {children}
-            </div>
-          ): (
-            <div className="flex flex-col justify-center gap-5 p-5 scroll-pb-24 pb-24">
-              {children}
-              <NavMen />
-            </div>
-          )}
-
+          <MobileOnly>
+            {staticpages ? (
+              <div className={`flex flex-col h-[100dvh] ${isStartPage ? 'bg-cyan-100' : ''} overflow-hidden gap-5 p-5 justify-center`}>
+                {children}
+              </div>
+            ): (
+              <div className="flex flex-col justify-center gap-5 p-5 scroll-pb-24 pb-24">
+                {children}
+                <NavMen />
+              </div>
+            )}
+          </MobileOnly>
         </QueryClientProvider>
       </body>
     </html>
