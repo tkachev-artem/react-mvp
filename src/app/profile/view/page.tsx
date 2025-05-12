@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "../../../hooks/useAuth";
-import { useUser } from "../../../hooks/useUser";
+import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@/hooks/useUser";
 import Image from "next/image";
 
 export default function ProfileView() {

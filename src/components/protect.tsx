@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode, useState } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 const Protect = ({children}: {children: ReactNode}) => {
     const router = useRouter();

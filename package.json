@@ -2,6 +2,7 @@
   "name": "react-mvp",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -27,5 +28,17 @@
     "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

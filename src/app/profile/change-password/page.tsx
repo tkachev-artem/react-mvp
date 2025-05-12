@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useChangePassword } from "../../../hooks/useChangePassword";
+import { useChangePassword } from "@/hooks/useChangePassword";
 import { AxiosError } from "axios";
 import Image from "next/image";
 
