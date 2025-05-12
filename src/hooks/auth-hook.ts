@@ -115,4 +115,4 @@ export const useAuth = () => {
         error: loginMutation.error || registerStep1Mutation.error || registerStep2Mutation.error,
         isError: loginMutation.isError || registerStep1Mutation.isError || registerStep2Mutation.isError,
     };
-}
+} 

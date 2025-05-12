@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/UseAuth";
+import { useAuth } from "@/hooks/auth-hook";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface FormProps {

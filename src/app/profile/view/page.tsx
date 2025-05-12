@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "@/hooks/UseAuth";
+import { useAuth } from "@/hooks/auth-hook";
 import { useUser } from "@/hooks/useUser";
 import Image from "next/image";
 
